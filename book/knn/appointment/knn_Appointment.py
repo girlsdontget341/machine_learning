@@ -57,7 +57,7 @@ def classifyperson():#约会喜欢程度预测函数
     arrtest = array([per1, per2, per3])
     datingdatamat, datinglabels = file2matrix('datingTestSet2.txt')
     normmat, ranges, minval = autonorm(datingdatamat)
-    result = book_knn1.classify0((arrtest-minval)/ranges, normmat, datinglabels, 3)
+    result = book_knn1.classify0((arrtest - minval) / ranges, normmat, datinglabels, 3)
     print("你获得的结果是：", resultlist[result-1])
 
 if __name__ == '__main__':
