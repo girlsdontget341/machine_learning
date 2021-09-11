@@ -2,7 +2,7 @@ from os import listdir
 from book.knn.appointment.book_knn1 import classify0
 from numpy import *
 
-def img2vector(filename):
+def img2vector(filename):#把32*32的数字转化成1*1024的向量
     returnvec = zeros((1,1024))
     fr = open(filename)
     for i in range(32):
@@ -19,7 +19,7 @@ def handwritingtest():
     for i in range(m):
         filenamestr = training_file[i]
         filestr = filenamestr.split('.')[0]
-        classnumber = int(filestr.split('_')[0])
+        classnumber = int(filestr.split('_')[0])#此处可简化为int（filenamestr.split（’_‘）[0]
         hwlabels.append(classnumber)
         trainingmat[i,:] = img2vector(r'trainingDigits/%s' %filenamestr)
     test_file = listdir(r'testDigits')
