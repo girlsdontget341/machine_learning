@@ -27,6 +27,33 @@ def gradientasc(datamatin, classlabels):#梯度上升法求权重（回归系数
         weights = weights + alpha * datamatrix.transpose() * error
     return weights
 
+def stocgradasc(datamat, classlabels):#随机梯度上升方法
+    m,n = shape(datamat)               #同上大致相同 区别为此处的h与error都是数值 上全是向量
+    alpha = 0.01
+    weights = ones(n)
+    for i in range(m):
+        h = sigmoid(sum(datamat[i]*weights))
+        error = classlabels[i] - h
+        weights = weights + alpha * error * datamat[i]
+    return weights
+
+def stocgradasc1(datamat, classlabels, numcycl = 150):#改进的随机梯度上升方法
+    m,n =shape(datamat)
+    datamatrix = array(datamat)
+    weights = ones(n)
+    for j  in range(numcycl):
+        dataindex = list(range(m))
+        for i in range(m):
+            alpha = 4/(1.0+j+i)+0.01 #使alpha每次迭代进行调整 保证对新数据仍有一定的影响
+
+            #通过随机选取样本来更新回归系数 减少周期性波动
+            randindex= int(random.uniform(0,len(dataindex)))
+            h = sigmoid(sum(datamatrix[randindex]*weights))
+            error = classlabels[randindex] - h
+            weights = weights + alpha * error * datamatrix[randindex]
+            del(dataindex[randindex])
+    return weights
+
 def plotfit(weights):
     dataarr, labelmat = loadDataset()
     dataArr = mat(dataarr)
