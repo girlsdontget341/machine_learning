@@ -32,6 +32,15 @@ def smoSimple(dataMat,classLabels,C,toler,maxIter):
             #and alpha<C 或者labelMat[i]*fXi>1(labelMat[i]*fXi-1>toler)and alpha>0
             if(((labelMat[i]*Ei < -toler)and(alphas[i] < C)) or \
             ((labelMat[i]*Ei>toler) and (alphas[i]>0))):
+                """
+                对于条件((labelMat[i]*Ei < -toler) and (alphas[i] < C))：
+                αi<C,即对于边界上或边界外的点，
+                当yi=1时,labelMat[i]*Ei=yi(wxi+b-yi)=f(i)-1<-toler，f(i)<1-toler；当yi=-1时，f(i)>-1+toler
+                也就是边界以外的点xi经过wxi+b分类后得到的结果超出了设置的容错率，即分类错误，需要继续优化
+                同理，对于条件((labelMat[i]*Ei > toler) and (alphas[i] > 0))：
+                当yi=1时，labelMat[i]*Ei=yi(f(i)-yi)=f(i)-1>toler,即f(i)>toler+1；当yi=-1时，f(i)<-1-toler,说明样本i是边界外的点。
+                那么αi，也就是样本i对优化目标限制条件的贡献应该为零，而条件alphas[i]>0却使样本i对限制条件的贡献大于零，说明αi是不对的，需要继续优化。
+                """
                 #随机选择第二个变量alphaj
                 j = selectJrand(i,m)
                 #计算第二个变量对应数据的预测值
@@ -44,6 +53,8 @@ def smoSimple(dataMat,classLabels,C,toler,maxIter):
                 alphaIold=alphas[i].copy()
                 alphaJold=alphas[j].copy()
                 #如何两个alpha对应样本的标签不相同
+                # L和H用于将alphas[j]调整到0-C之间。如果L==H，就不做任何改变，直接执行continue语句
+                # labelMat[i] != labelMat[j] 表示异侧，就相减，否则是同侧，就相加。
                 if(labelMat[i]!=labelMat[j]):
                     #求出相应的上下边界
                     L=max(0,alphas[j]-alphas[i])
@@ -54,6 +65,8 @@ def smoSimple(dataMat,classLabels,C,toler,maxIter):
                 if L==H: print("L==H");continue
                 #根据公式计算未经剪辑的alphaj
                 #------------------------------------------
+                # eta是alphas[j]的最优修改量，如果eta==0，需要退出for循环的当前迭代过程
+                # 参考《统计学习方法》李航-P125~P128<序列最小最优化算法>
                 eta=2.0*dataMatrix[i,:]*dataMatrix[j,:].T-\
                     dataMatrix[i,:]*dataMatrix[i,:].T-\
                     dataMatrix[j,:]*dataMatrix[j,:].T
